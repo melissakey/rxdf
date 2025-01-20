@@ -251,42 +251,41 @@ DataFrame get_timeseries(const std::vector<std::vector<std::variant<int, float, 
   Rcpp::List columns(num_cols);
   
   for(size_t j = 0; j < num_cols; ++j) {
-    const std::variant<int, float, double, int64_t, std::string>& value = data[j][0];
-    if(std::holds_alternative<int>(value)) {
+    // Check type using first element but don't reuse its value
+    const std::variant<int, float, double, int64_t, std::string>& first_value = data[j][0];
+    
+    if(std::holds_alternative<int>(first_value)) {
       IntegerVector column(num_rows);
       for(size_t i = 0; i < num_rows; ++i){
-        column[i] = std::get<int>(value);
+        column[i] = std::get<int>(data[j][i]);  // Get value from correct row
       }
       columns[j] = column;
-    } else if(std::holds_alternative<int64_t>(value)) {
+    } else if(std::holds_alternative<int64_t>(first_value)) {
       IntegerVector column(num_rows);
       for(size_t i = 0; i < num_rows; ++i){
-        column[i] = std::get<int>(value);
+        column[i] = std::get<int64_t>(data[j][i]);  // Get value from correct row
       }
       columns[j] = column;
-    } else if(std::holds_alternative<float>(value)) {
+    } else if(std::holds_alternative<float>(first_value)) {
       NumericVector column(num_rows);
       for(size_t i = 0; i < num_rows; ++i){
-        column[i] = std::get<float>(value);
+        column[i] = std::get<float>(data[j][i]);  // Get value from correct row
       }
       columns[j] = column;
-    } else if(std::holds_alternative<double>(value)) {
+    } else if(std::holds_alternative<double>(first_value)) {
       NumericVector column(num_rows);
       for(size_t i = 0; i < num_rows; ++i){
-        column[i] = std::get<double>(value);
+        column[i] = std::get<double>(data[j][i]);  // Get value from correct row
       }
       columns[j] = column;
-    } else if(std::holds_alternative<std::string>(value)) {
+    } else if(std::holds_alternative<std::string>(first_value)) {
       CharacterVector column(num_rows);
       for(size_t i = 0; i < num_rows; ++i){
-        column[i] = std::get<std::string>(value);
+        column[i] = std::get<std::string>(data[j][i]);  // Get value from correct row
       }
       columns[j] = column;
-      
     }
-    
   }
   
-  Rcpp::DataFrame df(columns);
-  return df;
+  return Rcpp::DataFrame(columns);
 }
